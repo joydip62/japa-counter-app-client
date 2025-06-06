@@ -1,5 +1,6 @@
 const { app, BrowserWindow, globalShortcut } = require("electron");
 const path = require("path");
+const isDev = !app.isPackaged;
 
 let mainWindow;
 
@@ -14,20 +15,26 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("https://japa-counter-app-client.onrender.com/");
-
-  // mainWindow.loadFile(path.join(__dirname, "build", "index.html"));
-  // mainWindow.webContents.openDevTools(); // <== This helps debug any error
+  // if (isDev) {
+  //   mainWindow.loadURL("http://localhost:3000");
+  //   mainWindow.webContents.openDevTools();
+  // } else {
+  //   mainWindow.loadFile(path.join(__dirname, "build", "index.html"));
+  //   // Uncomment this line to debug the packaged app
+  //   mainWindow.webContents.openDevTools();
+  // }
+  if (isDev) {
+    mainWindow.loadURL("http://localhost:3000");
+    mainWindow.once("ready-to-show", () => mainWindow.show());
+  } else {
+    mainWindow.loadFile(path.join(__dirname, "build", "index.html"));
+    mainWindow.once("ready-to-show", () => mainWindow.show());
+  }
 }
 
 app.whenReady().then(() => {
   createWindow();
 
-  globalShortcut.register("CommandOrControl+R", () => {
-    console.log("Refresh disabled");
-  });
-
-  // ✅ Register global shortcuts **AFTER** the window is created
   globalShortcut.register("F7", () => {
     if (mainWindow) {
       mainWindow.webContents.send("increment");

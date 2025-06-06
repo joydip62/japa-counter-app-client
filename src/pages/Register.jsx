@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import axios from "../utils/axios"; // Axios instance pointing to http://localhost:5000/api
+import axios from "../utils/axios"; 
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {

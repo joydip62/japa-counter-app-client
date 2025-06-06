@@ -18,4 +18,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.removeAllListeners("decrement");
     ipcRenderer.removeAllListeners("reset");
   },
+
+  receive: (channel, func) => {
+    const validChannels = ["increment", "decrement", "reset"];
+    if (validChannels.includes(channel)) {
+      ipcRenderer.on(channel, (_, ...args) => func(...args));
+    }
+  },
+  
 });

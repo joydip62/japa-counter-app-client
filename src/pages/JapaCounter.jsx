@@ -272,6 +272,18 @@ export default function JapaCounter({ setUser }) {
 
   const totalDuration = rounds.reduce((sum, r) => sum + (r?.duration || 0), 0);
 
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "i") increment();
+      else if (e.key === "o") decrement();
+      else if (e.key === "p") reset();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+  
   return (
     <div
       style={{

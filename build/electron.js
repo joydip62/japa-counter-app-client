@@ -12,7 +12,8 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("http://localhost:3000"); // or loadFile if using build
+  // mainWindow.loadURL("http://localhost:3000"); 
+  mainWindow.loadFile(path.join(__dirname, "build", "index.html"));
 
   // Register global shortcuts
   globalShortcut.register("Control+I", () => {

@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Japa counter app",
   "author": "Jagannatha Patita-tarana dasa",
-  "homepage": ".",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
@@ -67,7 +66,7 @@
   "devDependencies": {
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
-    "electron": "^36.2.0",
+    "electron": "^20.3.11",
     "electron-builder": "^26.0.12",
     "wait-on": "^8.0.3"
   }
