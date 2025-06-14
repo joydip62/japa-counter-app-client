@@ -27,10 +27,10 @@ The **Japa Counter App** is a cross-platform desktop application designed for in
 
 ```bash
 # Clone the repo
-git clone https://github.com/joydip62/japa-counter-app.git
+git clone https://github.com/joydip62/japa-counter-app-client.git
 
 # Install dependencies
-cd japa-counter-app
+cd japa-counter-app-client
 npm install
 
 # Build frontend
