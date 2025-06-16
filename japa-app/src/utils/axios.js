@@ -14,8 +14,8 @@ const instance = axios.create({
 
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-    console.log('Sending request to:', config.url);
-    console.log('Token in header:', token);
+    // console.log('Sending request to:', config.url);
+    // console.log('Token in header:', token);
 
   // Do not attach token for login or register requests
   if (

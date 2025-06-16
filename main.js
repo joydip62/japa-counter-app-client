@@ -7,8 +7,9 @@ let mainWindow;
 function createWindow() {
      mainWindow = new BrowserWindow({
        title: 'Japa Count App',
+       icon: path.join(__dirname, './japa-app/build/icon.ico'),
        width: 800,
-         height: 600,
+       height: 600,
        icon: 'japa.ico',
        webPreferences: {
          preload: path.join(__dirname, 'preload.js'),
@@ -20,7 +21,7 @@ function createWindow() {
     // mainWindow.webContents.openDevTools();
   
     const startUrl = url.format({
-        pathname: path.join(__dirname, './japa-count-app/build/index.html'),
+        pathname: path.join(__dirname, './japa-app/build/index.html'),
         protocol: 'file',
     })
 

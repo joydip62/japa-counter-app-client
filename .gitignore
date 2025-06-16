@@ -10,9 +10,9 @@
 # production
 /build
 /dist
-/app/node_modules
-/app/build
-/app/src/old
+/japa-app/node_modules
+/japa-app/build
+/japa-app/src/old
 
 # misc
 .DS_Store

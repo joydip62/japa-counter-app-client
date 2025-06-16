@@ -105,11 +105,10 @@ export default function JapaCounter({ setUser }) {
     const email = loggedInUserEmail;
     const dailyKey = `dailyJapaData_${email}`;
 
-
     setDailyData((prev) => {
       if (!prev || prev.totalCount <= 0) return prev;
-      
-      if (prev.totalCount === 108) return prev;
+
+      if (prev.totalCount % 108 === 0) return prev;
 
       const updated = {
         ...prev,

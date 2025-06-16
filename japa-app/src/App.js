@@ -26,6 +26,35 @@ function App() {
     setCheckingAuth(false);
   }, []);
 
+  useEffect(() => {
+    const today = new Date().toLocaleDateString();
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+
+      if (key.startsWith('dailyJapaData_') || key.startsWith('japaRounds_')) {
+        try {
+          const data = JSON.parse(localStorage.getItem(key));
+
+          if (key.startsWith('dailyJapaData_') && data.date !== today) {
+            localStorage.removeItem(key);
+            console.log(`Removed old ${key}`);
+          }
+
+          if (key.startsWith('japaRounds_')) {
+            const isToday = data?.some((item) => item.date === today);
+            if (!isToday) {
+              localStorage.removeItem(key);
+              console.log(`Removed old ${key}`);
+            }
+          }
+        } catch (e) {
+          console.warn(`Failed to parse ${key}:`, e);
+        }
+      }
+    }
+  }, []);
+
   if (checkingAuth) return <div>Loading...</div>; 
 
   return (
