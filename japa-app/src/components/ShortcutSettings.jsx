@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 
 const ShortcutSettings = () => {
   const navigate = useNavigate();
-  const email = localStorage.getItem('email');
-  const shortcutKey = `japa_shortcuts_${email}`;
 
   const [shortcuts, setShortcuts] = useState({
     increment: 'F7',
