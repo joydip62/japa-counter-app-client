@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
 import LogoutButton from "../components/Logout";
+import ShortcutDisplay from "../components/ShortcutDisplay";
 
 export default function JapaCounter({ setUser }) {
   const [count, setCount] = useState(0);
@@ -269,53 +270,57 @@ export default function JapaCounter({ setUser }) {
     }
   }, [loggedInUserEmail]);
 
-  const isUserData = dailyData?.email === loggedInUserEmail;
+  // const isUserData = dailyData?.email === loggedInUserEmail;
   // console.log("japa counter,", isUserData);
 
   const totalDuration = rounds.reduce((sum, r) => sum + (r?.duration || 0), 0);
 
 
-  useEffect(() => {
-    function handleKeyDown(e) {
-      if (e.key === "i") increment();
-      else if (e.key === "o") decrement();
-      else if (e.key === "p") reset();
-    }
+  // useEffect(() => {
+  //   function handleKeyDown(e) {
+  //     if (e.key === "i") increment();
+  //     else if (e.key === "o") decrement();
+  //     else if (e.key === "p") reset();
+  //   }
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  //   window.addEventListener("keydown", handleKeyDown);
+  //   return () => window.removeEventListener("keydown", handleKeyDown);
+  // }, []);
   
   return (
     <div
       style={{
         ...themeStyles,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        fontFamily: "Arial, sans-serif",
-        padding: "0",
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: 'Arial, sans-serif',
+        padding: '0',
       }}
     >
       <h1>Japa Count App</h1>
       <div style={flexStyle}>
         <button
-          onClick={() => navigate("/user-dashboard")}
+          onClick={() => navigate('/user-dashboard')}
           style={{
-            padding: "10px 20px",
-            fontSize: "16px",
-            fontWeight: "600",
-            borderRadius: "8px",
-            border: "none",
-            cursor: "pointer",
-            backgroundColor: "#4CAF50",
-            color: "white",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-            transition: "background-color 0.3s ease",
+            padding: '10px 20px',
+            fontSize: '16px',
+            fontWeight: '600',
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            transition: 'background-color 0.3s ease',
           }}
         >
           📊 Go to Dashboard
+        </button>
+
+        <button onClick={() => navigate('/shortCutKey')} style={shortCutButton}>
+          🛠 Go to Key Setting
         </button>
 
         <LogoutButton setUser={setUser} />
@@ -323,19 +328,19 @@ export default function JapaCounter({ setUser }) {
 
       <div
         style={{
-          fontSize: "5rem",
-          marginBottom: "20px",
-          fontWeight: "bold",
+          fontSize: '5rem',
+          marginBottom: '20px',
+          fontWeight: 'bold',
           color: themeStyles.color,
         }}
       >
         {count}
       </div>
-      <div style={{ fontSize: "2rem", marginBottom: "10px" }}>
+      <div style={{ fontSize: '2rem', marginBottom: '10px' }}>
         Round: {round}
       </div>
       {lastRoundDuration && (
-        <div style={{ marginBottom: "20px", fontSize: "1.2rem" }}>
+        <div style={{ marginBottom: '20px', fontSize: '1.2rem' }}>
           Last Round Time: {lastRoundDuration}
         </div>
       )}
@@ -343,7 +348,7 @@ export default function JapaCounter({ setUser }) {
       {submittedToday ? (
         <h1>Already Submitted Today's Japa</h1>
       ) : (
-        <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
+        <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
           <button onClick={increment} style={buttonStyle} title="F7">
             Increment
           </button>
@@ -358,25 +363,25 @@ export default function JapaCounter({ setUser }) {
 
       <button
         onClick={toggleTheme}
-        style={{ ...buttonStyle, backgroundColor: darkMode ? "#444" : "#222" }}
+        style={{ ...buttonStyle, backgroundColor: darkMode ? '#444' : '#222' }}
       >
-        Toggle {darkMode ? "Light" : "Dark"} Mode
+        Toggle {darkMode ? 'Light' : 'Dark'} Mode
       </button>
       <div
         style={{
-          marginTop: "30px",
-          fontSize: "1rem",
-          color: darkMode ? "#aaa" : "#666",
+          marginTop: '30px',
+          fontSize: '1rem',
+          color: darkMode ? '#aaa' : '#666',
         }}
       >
-        Shortcut keys: F7 (Increment), F8 (Decrement), F9 (Reset)
+        <ShortcutDisplay />
       </div>
 
-      <div style={{ marginTop: "40px", width: "100%", maxWidth: "500px" }}>
+      <div style={{ marginTop: '40px', width: '100%', maxWidth: '500px' }}>
         <h2
           style={{
-            fontSize: "1.5rem",
-            marginBottom: "10px",
+            fontSize: '1.5rem',
+            marginBottom: '10px',
             color: themeStyles.color,
           }}
         >
@@ -389,17 +394,17 @@ export default function JapaCounter({ setUser }) {
           <>
             <table
               style={{
-                width: "100%",
-                borderCollapse: "collapse",
+                width: '100%',
+                borderCollapse: 'collapse',
                 color: themeStyles.color,
               }}
             >
               <thead>
-                <tr style={{ backgroundColor: darkMode ? "#444" : "#ccc" }}>
-                  <th style={{ border: "1px solid #999", padding: "10px" }}>
+                <tr style={{ backgroundColor: darkMode ? '#444' : '#ccc' }}>
+                  <th style={{ border: '1px solid #999', padding: '10px' }}>
                     Round
                   </th>
-                  <th style={{ border: "1px solid #999", padding: "10px" }}>
+                  <th style={{ border: '1px solid #999', padding: '10px' }}>
                     Duration
                   </th>
                 </tr>
@@ -413,18 +418,18 @@ export default function JapaCounter({ setUser }) {
                     <tr key={index}>
                       <td
                         style={{
-                          border: "1px solid #999",
-                          padding: "8px",
-                          textAlign: "center",
+                          border: '1px solid #999',
+                          padding: '8px',
+                          textAlign: 'center',
                         }}
                       >
                         {index + 1}
                       </td>
                       <td
                         style={{
-                          border: "1px solid #999",
-                          padding: "8px",
-                          textAlign: "center",
+                          border: '1px solid #999',
+                          padding: '8px',
+                          textAlign: 'center',
                         }}
                       >
                         {minutes}m {seconds}s
@@ -439,14 +444,14 @@ export default function JapaCounter({ setUser }) {
               onClick={handleSubmitDayData}
               style={{
                 ...buttonStyle,
-                backgroundColor: "green",
-                color: "white",
-                marginTop: "20px",
-                padding: "10px 20px",
-                fontWeight: "bold",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
+                backgroundColor: 'green',
+                color: 'white',
+                marginTop: '20px',
+                padding: '10px 20px',
+                fontWeight: 'bold',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
               }}
             >
               Submit Daily Data
@@ -454,13 +459,13 @@ export default function JapaCounter({ setUser }) {
 
             <div
               style={{
-                marginTop: "10px",
-                fontSize: "1rem",
+                marginTop: '10px',
+                fontSize: '1rem',
                 color: themeStyles.color,
-                textAlign: "center",
+                textAlign: 'center',
               }}
             >
-              Total Time Today: {Math.floor(totalDuration / 60)}m{" "}
+              Total Time Today: {Math.floor(totalDuration / 60)}m{' '}
               {totalDuration % 60}s
             </div>
           </>
@@ -489,4 +494,18 @@ const flexStyle = {
   alignItems: "center",
   gap: "10px",
   margin: "30px",
+};
+
+const shortCutButton = {
+  // display: "block",
+  padding: "10px 20px",
+  fontSize: "16px",
+  fontWeight: "600",
+  borderRadius: "8px",
+  border: "none",
+  cursor: "pointer",
+  backgroundColor: "#007bff",
+  color: "white",
+  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+  transition: "background-color 0.3s ease",
 };

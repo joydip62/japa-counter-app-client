@@ -26,7 +26,6 @@ const UserDashboard = ({ setUser }) => {
     const fetchRecords = async () => {
       try {
         const res = await axios.get("/rounds/history");
-        // console.log("Fetched data:", res.data); // Add this to confirm
         setRecords(res.data);
       } catch (error) {
         console.error("Error fetching records:", error);
@@ -41,8 +40,12 @@ const UserDashboard = ({ setUser }) => {
       <h2 style={styles.title}>📜 Your Past Japa Records</h2>
 
       <div style={flexStyle}>
-        <button onClick={() => navigate("/japaCounter")} style={styles.button}>
+        <button onClick={() => navigate('/japaCounter')} style={styles.button}>
           🧘 Go to Japa Counter
+        </button>
+
+        <button onClick={() => navigate('/shortCutKey')} style={styles.button}>
+          🛠 Go to Key Setting
         </button>
 
         <LogoutButton setUser={setUser} />

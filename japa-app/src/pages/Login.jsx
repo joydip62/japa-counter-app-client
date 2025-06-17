@@ -20,6 +20,9 @@ export default function Login({ setUser }) {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
       localStorage.setItem("email", res.data.email);
+      if (window.electronAPI?.send) {
+        window.electronAPI.send('set-user-email', res.data.email);
+      }
       // setUser(res.data);
       setUser({ token: res.data.token, role: res.data.role });
 

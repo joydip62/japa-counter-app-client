@@ -1,29 +1,24 @@
-const { contextBridge, ipcRenderer } = require("electron");
+const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld("electronAPI", {
-  onIncrement: (callback) => {
-    // console.log("Registered onIncrement");
-    ipcRenderer.on("increment", callback);
-  },
-  onDecrement: (callback) => {
-    // console.log("Registered onDecrement");
-    ipcRenderer.on("decrement", callback);
-  },
-  onReset: (callback) => {
-    // console.log("Registered onReset");
-    ipcRenderer.on("reset", callback);
-  },
+contextBridge.exposeInMainWorld('electronAPI', {
+  invoke: (channel, data) => ipcRenderer.invoke(channel, data),
+  onIncrement: (callback) => ipcRenderer.on('increment', callback),
+  onDecrement: (callback) => ipcRenderer.on('decrement', callback),
+  onReset: (callback) => ipcRenderer.on('reset', callback),
   removeAllListeners: () => {
-    ipcRenderer.removeAllListeners("increment");
-    ipcRenderer.removeAllListeners("decrement");
-    ipcRenderer.removeAllListeners("reset");
+    ipcRenderer.removeAllListeners('increment');
+    ipcRenderer.removeAllListeners('decrement');
+    ipcRenderer.removeAllListeners('reset');
   },
-
   receive: (channel, func) => {
-    const validChannels = ["increment", "decrement", "reset"];
+    const validChannels = ['increment', 'decrement', 'reset'];
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, (_, ...args) => func(...args));
     }
   },
-  
+  send: (channel, data) => {
+    if (['update-shortcuts', 'set-user-email'].includes(channel)) {
+      ipcRenderer.send(channel, data);
+    }
+  },
 });

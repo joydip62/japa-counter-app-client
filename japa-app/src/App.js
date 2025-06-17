@@ -12,6 +12,7 @@ import JapaCounter from "./pages/JapaCounter";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
+import ShortcutSettings from "./components/ShortcutSettings";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -38,14 +39,12 @@ function App() {
 
           if (key.startsWith('dailyJapaData_') && data.date !== today) {
             localStorage.removeItem(key);
-            console.log(`Removed old ${key}`);
           }
 
           if (key.startsWith('japaRounds_')) {
             const isToday = data?.some((item) => item.date === today);
             if (!isToday) {
               localStorage.removeItem(key);
-              console.log(`Removed old ${key}`);
             }
           }
         } catch (e) {
@@ -85,10 +84,22 @@ function App() {
             user && user.role === 'user' ? (
               <JapaCounter setUser={setUser} />
             ) : (
-              <Navigate to="/" />
+              <Navigate to="/login" />
             )
           }
         />
+        
+        <Route
+          path="/shortCutKey"
+          element={
+            user && user.role === 'user' ? (
+              <ShortcutSettings />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
 
         <Route
           path="/user-dashboard"
