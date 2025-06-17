@@ -26,7 +26,8 @@
     "files": [
       "main.js",
       "preload.js",
-      "icon/**/*"        
+      "japa-app/build/**/*",
+      "icon/**/*"
     ],
     "extraResources": [
       {
