@@ -22,7 +22,6 @@ const ShortcutSettings = () => {
 
       // Send shortcuts to Electron main process
       window.electron.send('update-shortcuts', { email, shortcuts });
-      console.log('Sent shortcuts to Electron:', { email, shortcuts });
     }
   }, []);
   

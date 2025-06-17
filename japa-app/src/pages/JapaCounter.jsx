@@ -233,7 +233,6 @@ export default function JapaCounter({ setUser }) {
     if (storedDate && storedDate !== today) {
       localStorage.removeItem(dailyKey);
       localStorage.removeItem(submittedKey);
-      console.log("Old Japa data cleared because it's a new day.");
     }
     setCount(dailyData.totalCount % 108);
 
