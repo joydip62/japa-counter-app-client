@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "dev:watch": "npx electronmon --trace-warnings .",
-    "dist": "electron-builder"
+    "dist": "dotenv electron-builder"
   },
   "keywords": [
     "electron",
@@ -16,6 +16,7 @@
   "author": "JagannathaPT",
   "license": "MIT",
   "devDependencies": {
+    "dotenv-cli": "^8.0.0",
     "electron": "^36.4.0",
     "electron-builder": "^26.0.12"
   },

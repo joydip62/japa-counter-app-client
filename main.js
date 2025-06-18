@@ -38,6 +38,19 @@ function createWindow() {
   // mainWindow.loadURL('http://localhost:3000');
 
   // mainWindow.webContents.openDevTools(); // For debugging
+  // Send update events to renderer
+  autoUpdater.on('update-available', () => {
+    mainWindow.webContents.send('update-available');
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    mainWindow.webContents.send('update-downloaded');
+  });
+
+  // Trigger update install
+  ipcMain.on('install-update', () => {
+    autoUpdater.quitAndInstall();
+  });
 }
 
 function isValidShortcutSet(shortcuts) {
@@ -77,22 +90,8 @@ function registerUserShortcuts(shortcuts) {
 app.whenReady().then(() => {
   createWindow();
 
-  // auto update
+  // ✅ Automatically check for updates
   autoUpdater.checkForUpdatesAndNotify();
-
-  autoUpdater.on('update-available', () => {
-    mainWindow.webContents.send('update-available');
-  });
-
-  autoUpdater.on('update-downloaded', () => {
-    mainWindow.webContents.send('update-downloaded');
-  });
-
-  ipcMain.on('install-update', () => {
-    autoUpdater.quitAndInstall();
-  });
-
-
 
   let savedShortcuts = {
     increment: 'F7',
@@ -123,7 +122,6 @@ app.whenReady().then(() => {
     fs.writeFileSync(userFile, JSON.stringify(shortcuts));
     registerUserShortcuts(shortcuts);
   });
-  
 
   // 📧 Listen for user login and load their specific shortcuts
   ipcMain.on('set-user-email', (event, email) => {
@@ -180,7 +178,6 @@ app.whenReady().then(() => {
       reset: 'F9',
     };
   });
-  
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
