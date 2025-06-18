@@ -5,7 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   installUpdate: () => ipcRenderer.send('install-update'),
   onUpdateDownloaded: (callback) =>
     ipcRenderer.on('update-downloaded', callback),
-  
+
   removeUpdateDownloadedListener: () =>
     ipcRenderer.removeAllListeners('update-downloaded'),
   invoke: (channel, data) => ipcRenderer.invoke(channel, data),
