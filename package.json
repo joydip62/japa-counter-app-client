@@ -1,6 +1,6 @@
 {
   "name": "japa-count-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "this is a japa counter app",
   "main": "main.js",
   "scripts": {

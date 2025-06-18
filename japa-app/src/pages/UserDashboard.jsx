@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "../utils/axios";
-import { useNavigate } from "react-router-dom";
-import LogoutButton from "../components/Logout";
+import ButtonLink from "../components/ButtonLink";
 
 const UserDashboard = ({ setUser }) => {
   const [records, setRecords] = useState([]);
-  const navigate = useNavigate();
 
 
   
@@ -39,17 +37,8 @@ const UserDashboard = ({ setUser }) => {
     <div style={styles.container}>
       <h2 style={styles.title}>📜 Your Past Japa Records</h2>
 
-      <div style={flexStyle}>
-        <button onClick={() => navigate('/japaCounter')} style={styles.button}>
-          🧘 Go to Japa Counter
-        </button>
+      <ButtonLink />
 
-        <button onClick={() => navigate('/shortCutKey')} style={styles.button}>
-          🛠 Go to Key Setting
-        </button>
-
-        <LogoutButton setUser={setUser} />
-      </div>
       <div style={styles.tableWrapper}>
         <table style={styles.table}>
           <thead>
@@ -83,6 +72,7 @@ const UserDashboard = ({ setUser }) => {
     </div>
   );
 };
+
 
 const styles = {
   container: {
@@ -142,11 +132,5 @@ const styles = {
   },
 };
 
-const flexStyle = {
-  display: "flex",
-  justifyContent: "center", 
-  alignItems: "center", 
-  gap: "10px",
-  margin: "30px"
-};
+
 export default UserDashboard;

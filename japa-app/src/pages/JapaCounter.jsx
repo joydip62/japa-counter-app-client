@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
 import LogoutButton from "../components/Logout";
 import ShortcutDisplay from "../components/ShortcutDisplay";
+import ButtonLink from "../components/ButtonLink";
 
 export default function JapaCounter({ setUser }) {
   const [count, setCount] = useState(0);
@@ -299,31 +300,8 @@ export default function JapaCounter({ setUser }) {
       }}
     >
       <h1>Japa Count App</h1>
-      <div style={flexStyle}>
-        <button
-          onClick={() => navigate('/user-dashboard')}
-          style={{
-            padding: '10px 20px',
-            fontSize: '16px',
-            fontWeight: '600',
-            borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            transition: 'background-color 0.3s ease',
-          }}
-        >
-          📊 Go to Dashboard
-        </button>
-
-        <button onClick={() => navigate('/shortCutKey')} style={shortCutButton}>
-          🛠 Go to Key Setting
-        </button>
-
-        <LogoutButton setUser={setUser} />
-      </div>
+     
+      <ButtonLink />
 
       <div
         style={{
@@ -487,24 +465,3 @@ const buttonStyle = {
   transition: "background-color 0.3s ease",
 };
 
-const flexStyle = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "10px",
-  margin: "30px",
-};
-
-const shortCutButton = {
-  // display: "block",
-  padding: "10px 20px",
-  fontSize: "16px",
-  fontWeight: "600",
-  borderRadius: "8px",
-  border: "none",
-  cursor: "pointer",
-  backgroundColor: "#007bff",
-  color: "white",
-  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-  transition: "background-color 0.3s ease",
-};
