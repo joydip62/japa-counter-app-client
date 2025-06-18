@@ -48,10 +48,10 @@ function createWindow() {
     mainWindow.webContents.send('update-downloaded');
   });
 
-  // Trigger update install
-  ipcMain.on('install-update', () => {
-    autoUpdater.quitAndInstall();
+  mainWindow.webContents.once('did-finish-load', () => {
+    autoUpdater.checkForUpdatesAndNotify();
   });
+  
 }
 
 function isValidShortcutSet(shortcuts) {
@@ -179,8 +179,10 @@ app.whenReady().then(() => {
     };
   });
 
-  ipcMain.handle('get-app-version', () => {
-    return app.getVersion();
+  ipcMain.handle('get-app-version', () => app.getVersion());
+  // Trigger update install
+  ipcMain.on('install-update', () => {
+    autoUpdater.quitAndInstall();
   });
 
   app.on('activate', () => {
