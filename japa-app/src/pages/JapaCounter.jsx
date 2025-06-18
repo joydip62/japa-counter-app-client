@@ -1,10 +1,9 @@
-import React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../utils/axios";
-import LogoutButton from "../components/Logout";
+import ButtonLink from "../components/NavButton";
 import ShortcutDisplay from "../components/ShortcutDisplay";
-import ButtonLink from "../components/ButtonLink";
+import axios from "../utils/axios";
+import NavButton from "../components/NavButton";
 
 export default function JapaCounter({ setUser }) {
   const [count, setCount] = useState(0);
@@ -300,8 +299,12 @@ export default function JapaCounter({ setUser }) {
       }}
     >
       <h1>Japa Count App</h1>
-     
-      <ButtonLink />
+
+      <NavButton
+        setUser={setUser}
+        label="📜 Go to Dashboard"
+        path="/user-dashboard"
+      />
 
       <div
         style={{

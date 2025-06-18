@@ -1,3 +1,4 @@
+require('@electron/remote/main').initialize();
 const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const url = require('url');
 const path = require('path');
@@ -9,10 +10,8 @@ let mainWindow;
 const userDataPath = app.getPath('userData');
 const shortcutFile = path.join(userDataPath, 'shortcuts.json');
 
-
 log.transports.file.level = 'info';
 autoUpdater.logger = log;
-
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -26,6 +25,8 @@ function createWindow() {
       nodeIntegration: false,
     },
   });
+
+  require('@electron/remote/main').enable(mainWindow.webContents);
 
   const startUrl = url.format({
     pathname: path.join(__dirname, 'japa-app/build', 'index.html'),
@@ -81,7 +82,6 @@ function registerUserShortcuts(shortcuts) {
     globalShortcut.register(shortcuts.reset, () => {
       mainWindow.webContents.send('reset');
     });
-
   } catch (error) {
     console.error('Failed to register shortcuts:', error);
   }
@@ -177,6 +177,10 @@ app.whenReady().then(() => {
       decrement: 'F8',
       reset: 'F9',
     };
+  });
+
+  ipcMain.handle('get-app-version', () => {
+    return app.getVersion();
   });
 
   app.on('activate', () => {

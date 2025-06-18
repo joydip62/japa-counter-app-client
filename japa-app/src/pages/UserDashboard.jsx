@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "../utils/axios";
-import ButtonLink from "../components/ButtonLink";
+import NavButton from "../components/NavButton";
 
 const UserDashboard = ({ setUser }) => {
   const [records, setRecords] = useState([]);
@@ -37,7 +37,11 @@ const UserDashboard = ({ setUser }) => {
     <div style={styles.container}>
       <h2 style={styles.title}>📜 Your Past Japa Records</h2>
 
-      <ButtonLink />
+      <NavButton
+        setUser={setUser}
+        label="🧘 Go to Japa Counter"
+        path="/japaCounter"
+      />
 
       <div style={styles.tableWrapper}>
         <table style={styles.table}>

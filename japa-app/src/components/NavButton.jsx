@@ -2,16 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoutButton from './Logout';
 
-const ButtonLink = ({ setUser }) => {
+const NavButton = ({ setUser, label, path }) => {
   const navigate = useNavigate();
 
   return (
     <div style={styles.flex}>
-      <button
-        onClick={() => navigate('/japaCounter')}
-        style={styles.counterButton}
-      >
-        🧘 Go to Japa Counter
+      <button onClick={() => navigate(path)} style={styles.counterButton}>
+        {label}
       </button>
 
       <button
@@ -60,4 +57,4 @@ const styles = {
   },
 };
 
-export default ButtonLink;
+export default NavButton;

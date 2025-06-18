@@ -13,13 +13,13 @@ const UpdateBanner = () => {
         );
         const data = await res.json();
 
-        const latest = data.tag_name.replace(/^v/, ''); // remove 'v' prefix
-        const local = await window.appVersion.get();
+        const latest = data.tag_name?.replace(/^v/, '') || '';
+        const local = await window.electronAPI?.getAppVersion?.();
 
         setLatestVersion(latest);
         setCurrentVersion(local);
 
-        if (latest !== local) {
+        if (latest && local && latest !== local) {
           setIsUpdateAvailable(true);
         }
       } catch (error) {
@@ -28,6 +28,22 @@ const UpdateBanner = () => {
     };
 
     checkForUpdate();
+
+    // ✅ Listen for autoUpdater update-downloaded event
+    const onUpdateDownloaded = () => {
+      const confirmInstall = window.confirm(
+        'A new version has been downloaded. Do you want to restart and install it now?'
+      );
+      if (confirmInstall) {
+        window.electronAPI?.installUpdate?.(); // Call preload-exposed function
+      }
+    };
+
+    window.electronAPI?.onUpdateDownloaded?.(onUpdateDownloaded);
+
+    return () => {
+      window.electronAPI?.removeUpdateDownloadedListener?.(); // Clean up
+    };
   }, []);
 
   if (!isUpdateAvailable) return null;
@@ -37,16 +53,8 @@ const UpdateBanner = () => {
       🔔 A new version ({latestVersion}) is available! You are using{' '}
       {currentVersion}.
       <br />
-      👉 Please visit{' '}
-      <a
-        href="https://github.com/joydip62/japa-counter-app-client/releases/latest"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={styles.link}
-      >
-        this page
-      </a>{' '}
-      to download the latest version.
+      👉 It will be downloaded automatically. Restart prompt will appear once
+      ready.
     </div>
   );
 };
@@ -58,10 +66,6 @@ const styles = {
     textAlign: 'center',
     fontWeight: 'bold',
     color: '#000',
-  },
-  link: {
-    textDecoration: 'underline',
-    color: '#0000ee',
   },
 };
 

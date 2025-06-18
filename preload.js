@@ -1,6 +1,12 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  installUpdate: () => ipcRenderer.send('install-update'),
+  onUpdateDownloaded: (callback) =>
+    ipcRenderer.on('update-downloaded', callback),
+  removeUpdateDownloadedListener: () =>
+    ipcRenderer.removeAllListeners('update-downloaded'),
   invoke: (channel, data) => ipcRenderer.invoke(channel, data),
   onIncrement: (callback) => ipcRenderer.on('increment', callback),
   onDecrement: (callback) => ipcRenderer.on('decrement', callback),
@@ -18,7 +24,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
       'update-available',
       'update-downloaded',
     ];
-
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, (_, ...args) => func(...args));
     }
@@ -30,8 +35,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.send(channel, data);
     }
   },
-});
-// ✅ Expose app version
-contextBridge.exposeInMainWorld('appVersion', {
-  get: () => app.getVersion(),
 });
