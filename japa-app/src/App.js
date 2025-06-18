@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
 import ShortcutSettings from "./components/ShortcutSettings";
+import UpdateBanner from "./components/UpdateBanner";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -58,9 +59,9 @@ function App() {
 
   return (
     <Router>
+      <UpdateBanner />
       <Routes>
         {/* <Route path="/" element={<Login setUser={setUser} />} /> */}
-
         <Route
           path="/"
           element={
@@ -88,7 +89,7 @@ function App() {
             )
           }
         />
-        
+
         <Route
           path="/shortCutKey"
           element={
@@ -99,7 +100,6 @@ function App() {
             )
           }
         />
-
 
         <Route
           path="/user-dashboard"

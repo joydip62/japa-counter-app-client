@@ -2,10 +2,17 @@ const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const url = require('url');
 const path = require('path');
 const fs = require('fs');
+const { autoUpdater } = require('electron-updater');
 
+const log = require('electron-log');
 let mainWindow;
 const userDataPath = app.getPath('userData');
 const shortcutFile = path.join(userDataPath, 'shortcuts.json');
+
+
+log.transports.file.level = 'info';
+autoUpdater.logger = log;
+
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -69,6 +76,23 @@ function registerUserShortcuts(shortcuts) {
 
 app.whenReady().then(() => {
   createWindow();
+
+  // auto update
+  autoUpdater.checkForUpdatesAndNotify();
+
+  autoUpdater.on('update-available', () => {
+    mainWindow.webContents.send('update-available');
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    mainWindow.webContents.send('update-downloaded');
+  });
+
+  ipcMain.on('install-update', () => {
+    autoUpdater.quitAndInstall();
+  });
+
+
 
   let savedShortcuts = {
     increment: 'F7',

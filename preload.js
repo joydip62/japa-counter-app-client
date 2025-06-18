@@ -11,13 +11,22 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.removeAllListeners('reset');
   },
   receive: (channel, func) => {
-    const validChannels = ['increment', 'decrement', 'reset'];
+    const validChannels = [
+      'increment',
+      'decrement',
+      'reset',
+      'update-available',
+      'update-downloaded',
+    ];
+
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, (_, ...args) => func(...args));
     }
   },
   send: (channel, data) => {
-    if (['update-shortcuts', 'set-user-email'].includes(channel)) {
+    if (
+      ['update-shortcuts', 'set-user-email', 'install-update'].includes(channel)
+    ) {
       ipcRenderer.send(channel, data);
     }
   },

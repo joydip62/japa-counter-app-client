@@ -1,0 +1,30 @@
+name: Build & Release Electron App
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # e.g. v1.0.0
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build React app
+        run: npm run build --prefix client  # adjust if your React app is not in `client`
+
+      - name: Package & Release Electron app
+        run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
