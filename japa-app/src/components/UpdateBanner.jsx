@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
 const UpdateBanner = () => {
-  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadReady, setDownloadReady] = useState(false);
   const [latestVersion, setLatestVersion] = useState('');
   const [currentVersion, setCurrentVersion] = useState('');
 
@@ -13,40 +15,64 @@ const UpdateBanner = () => {
         );
         const data = await res.json();
 
-        const latest = data.tag_name.replace(/^v/, ''); // remove 'v' prefix if present
-        const local = await window.electronAPI?.getAppVersion?.();
+        const latest = data.tag_name.replace(/^v/, '');
+        const local = await window.appVersion.get();
 
         setLatestVersion(latest);
         setCurrentVersion(local);
-
-        if (latest !== local) {
-          setIsUpdateAvailable(true);
-        }
       } catch (error) {
         console.error('Error checking update:', error);
       }
     };
 
     checkForUpdate();
+
+
+
+
+
+
+
+
+
+
+
+
+    window.electronAPI.receive('update-available', () => {
+      setUpdateAvailable(true);
+    });
+
+    window.electronAPI.receive('download-progress', (progress) => {
+      setDownloadProgress(Math.round(progress.percent));
+    });
+
+    window.electronAPI.receive('update-downloaded', () => {
+      setDownloadReady(true);
+    });
   }, []);
 
-  if (!isUpdateAvailable) return null;
+  if (!updateAvailable) return null;
 
   return (
     <div style={styles.banner}>
-      🔔 A new version ({latestVersion}) is available! You are using{' '}
-      {currentVersion}.
-      <br />
-      👉 Please visit{' '}
-      <a
-        href="https://github.com/joydip62/japa-counter-app-client/releases/latest"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={styles.link}
-      >
-        this page
-      </a>{' '}
-      to download the latest version(Only .exe file).
+      {downloadReady ? (
+        <>
+          ✅ Update downloaded!
+          <br />
+          <button onClick={() => window.electronAPI.installUpdate()}>
+            🔁 Restart and Install
+          </button>
+        </>
+      ) : (
+        <>
+          🔔 A new version ({latestVersion}) is available! You are using{' '}
+          {currentVersion}.
+          <br />
+          🔄 Update version downloading...
+          <br />
+          📥 Download Progress: {downloadProgress}%
+        </>
+      )}
     </div>
   );
 };
@@ -58,10 +84,6 @@ const styles = {
     textAlign: 'center',
     fontWeight: 'bold',
     color: '#000',
-  },
-  link: {
-    textDecoration: 'underline',
-    color: '#0000ee',
   },
 };
 

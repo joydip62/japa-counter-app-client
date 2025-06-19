@@ -90,9 +90,31 @@ function registerUserShortcuts(shortcuts) {
 app.whenReady().then(() => {
   createWindow();
 
-  // ✅ Automatically check for updates
-  autoUpdater.checkForUpdatesAndNotify();
+  // Automatically check for updates app ===================================
+  autoUpdater.on('update-available', () => {
+    mainWindow.webContents.send('update-available');
+  });
 
+  autoUpdater.on('download-progress', (progress) => {
+    console.log('📦 Download progress in main:', progress); // See in terminal
+    mainWindow.webContents.send('download-progress', progress);
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    mainWindow.webContents.send('update-downloaded');
+  });
+
+  // Start checking
+  autoUpdater.checkForUpdates();
+
+  ipcMain.handle('get-app-version', () => app.getVersion());
+
+  // Trigger update install
+  ipcMain.on('install-update', () => {
+    autoUpdater.quitAndInstall();
+  });
+
+  // shortcut key ===================================
   let savedShortcuts = {
     increment: 'F7',
     decrement: 'F8',
@@ -177,12 +199,6 @@ app.whenReady().then(() => {
       decrement: 'F8',
       reset: 'F9',
     };
-  });
-
-  ipcMain.handle('get-app-version', () => app.getVersion());
-  // Trigger update install
-  ipcMain.on('install-update', () => {
-    autoUpdater.quitAndInstall();
   });
 
   app.on('activate', () => {

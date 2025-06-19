@@ -1,6 +1,6 @@
 {
   "name": "japa-count-app",
-  "version": "1.0.6",
+  "version": "1.0.10",
   "description": "this is a japa counter app",
   "main": "main.js",
   "scripts": {
@@ -21,8 +21,9 @@
     "electron-builder": "^26.0.12"
   },
   "build": {
-    "appId": "com.yourdomain.japacounter",
-    "productName": "Japa Counter",
+    "appId": "com.japa.counter",
+    "productName": "Japa-Counter",
+    "artifactName": "${productName}-Setup-${version}.${ext}",
     "asar": false,
     "files": [
       "main.js",
