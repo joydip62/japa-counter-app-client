@@ -3,11 +3,13 @@ import axios from "axios";
 
 const instance = axios.create({
   baseURL:
-    process.env.NODE_ENV === "production"
-      ? "https://japa-count-app.onrender.com/api" 
-      : "https://japa-count-app.onrender.com/api",
+    process.env.NODE_ENV === 'production'
+      ? 'https://japa-count-app.onrender.com/api'
+      : 'https://japa-count-app.onrender.com/api',
+
+  // baseURL: 'http://localhost:5000/api',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 

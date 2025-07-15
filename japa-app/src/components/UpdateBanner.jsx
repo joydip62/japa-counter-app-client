@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { isElectron } from '../utils/electron';
 
 const UpdateBanner = () => {
   const [updateAvailable, setUpdateAvailable] = useState(false);
@@ -16,7 +17,10 @@ const UpdateBanner = () => {
         const data = await res.json();
 
         const latest = data.tag_name.replace(/^v/, '');
-        const local = await window.appVersion.get();
+        // const local = await window.appVersion.get();
+        const local = window?.appVersion?.get
+          ? await window.appVersion.get()
+          : '0.0.0';
 
         setLatestVersion(latest);
         setCurrentVersion(local);
@@ -27,28 +31,19 @@ const UpdateBanner = () => {
 
     checkForUpdate();
 
+    if (isElectron()) {
+      window.electronAPI.receive('update-available', () => {
+        setUpdateAvailable(true);
+      });
 
+      window.electronAPI.receive('download-progress', (progress) => {
+        setDownloadProgress(Math.round(progress.percent));
+      });
 
-
-
-
-
-
-
-
-
-
-    window.electronAPI.receive('update-available', () => {
-      setUpdateAvailable(true);
-    });
-
-    window.electronAPI.receive('download-progress', (progress) => {
-      setDownloadProgress(Math.round(progress.percent));
-    });
-
-    window.electronAPI.receive('update-downloaded', () => {
-      setDownloadReady(true);
-    });
+      window.electronAPI.receive('update-downloaded', () => {
+        setDownloadReady(true);
+      });
+    }
   }, []);
 
   if (!updateAvailable) return null;

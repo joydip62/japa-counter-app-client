@@ -1,23 +1,53 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   Navigate,
   Route,
   HashRouter as Router,
   Routes,
-} from "react-router-dom";
+  useNavigate,
+} from 'react-router-dom';
 
-import AdminDashboard from "./pages/AdminDashboard";
-import JapaCounter from "./pages/JapaCounter";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import UserDashboard from "./pages/UserDashboard";
-import ShortcutSettings from "./components/ShortcutSettings";
-import UpdateBanner from "./components/UpdateBanner";
+import ShortcutSettings from './components/ShortcutSettings';
+import UpdateBanner from './components/UpdateBanner';
+import AdminDashboard from './pages/AdminDashboard';
+import ForgotPassword from './pages/ForgotPassword';
+import JapaCounter from './pages/JapaCounter';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ResetPassword from './pages/ResetPassword';
+import UserDashboard from './pages/UserDashboard';
+import ResetRedirect from './pages/ResetRedirect';
 
-function App() {
+function DeepLinkHandler({ setPendingToken }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.electronAPI?.onDeepLink((url) => {
+      try {
+        const parsed = new URL(url);
+
+        if (parsed.hostname === 'login') {
+          navigate('/login');
+        } else if (parsed.hostname === 'reset-password') {
+          const token = parsed.searchParams.get('token');
+          if (token) {
+            setPendingToken(token);
+            navigate(`/reset-password?token=${token}`);
+          }
+        }
+      } catch (e) {
+        console.error('Invalid deep link:', url, e);
+      }
+    });
+  }, [navigate, setPendingToken]);
+
+  return null;
+}
+
+export default function App() {
   const [user, setUser] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [pendingToken, setPendingToken] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -28,40 +58,13 @@ function App() {
     setCheckingAuth(false);
   }, []);
 
-  useEffect(() => {
-    const today = new Date().toLocaleDateString();
-
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-
-      if (key.startsWith('dailyJapaData_') || key.startsWith('japaRounds_')) {
-        try {
-          const data = JSON.parse(localStorage.getItem(key));
-
-          if (key.startsWith('dailyJapaData_') && data.date !== today) {
-            localStorage.removeItem(key);
-          }
-
-          if (key.startsWith('japaRounds_')) {
-            const isToday = data?.some((item) => item.date === today);
-            if (!isToday) {
-              localStorage.removeItem(key);
-            }
-          }
-        } catch (e) {
-          console.warn(`Failed to parse ${key}:`, e);
-        }
-      }
-    }
-  }, []);
-
-  if (checkingAuth) return <div>Loading...</div>; 
+  if (checkingAuth) return <div>Loading...</div>;
 
   return (
     <Router>
+      <DeepLinkHandler setPendingToken={setPendingToken} />
       <UpdateBanner />
       <Routes>
-        {/* <Route path="/" element={<Login setUser={setUser} />} /> */}
         <Route
           path="/"
           element={
@@ -71,6 +74,8 @@ function App() {
               ) : (
                 <Navigate to="/user-dashboard" />
               )
+            ) : pendingToken ? (
+              <Navigate to={`/reset-password?token=${pendingToken}`} />
             ) : (
               <Login setUser={setUser} />
             )
@@ -78,7 +83,9 @@ function App() {
         />
         <Route path="/login" element={<Login setUser={setUser} />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-redirect" element={<ResetRedirect />} />
         <Route
           path="/japaCounter"
           element={
@@ -89,7 +96,6 @@ function App() {
             )
           }
         />
-
         <Route
           path="/shortCutKey"
           element={
@@ -100,7 +106,6 @@ function App() {
             )
           }
         />
-
         <Route
           path="/user-dashboard"
           element={
@@ -125,5 +130,3 @@ function App() {
     </Router>
   );
 }
-
-export default App;
