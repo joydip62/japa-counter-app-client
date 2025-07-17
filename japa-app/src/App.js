@@ -17,6 +17,7 @@ import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
 import UserDashboard from './pages/UserDashboard';
 import ResetRedirect from './pages/ResetRedirect';
+import StartupPopup from './components/StartupPopup';
 
 function DeepLinkHandler({ setPendingToken }) {
   const navigate = useNavigate();
@@ -63,6 +64,7 @@ export default function App() {
   return (
     <Router>
       <DeepLinkHandler setPendingToken={setPendingToken} />
+      <StartupPopup />
       <UpdateBanner />
       <Routes>
         <Route

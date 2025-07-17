@@ -33,15 +33,15 @@ function createWindow() {
 
   require('@electron/remote/main').enable(mainWindow.webContents);
 
-  const startUrl = url.format({
-    pathname: path.join(__dirname, 'japa-app/build', 'index.html'),
-    protocol: 'file:',
-    slashes: true,
-  });
+  // const startUrl = url.format({
+  //   pathname: path.join(__dirname, 'japa-app/build', 'index.html'),
+  //   protocol: 'file:',
+  //   slashes: true,
+  // });
 
-  mainWindow.loadURL(startUrl);
+  // mainWindow.loadURL(startUrl);
 
-  // mainWindow.loadURL('http://localhost:3000');
+  mainWindow.loadURL('http://localhost:3000');
   // mainWindow.webContents.openDevTools();
 
   // ✅ Handle deep link on app launch (cold start)
