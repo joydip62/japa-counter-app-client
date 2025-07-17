@@ -26,7 +26,7 @@ export default function Register() {
       setForm({ username: "", email: "", password: "" });
 
       setTimeout(() => {
-        navigate("/user-dashboard"); // Redirect after short delay
+        navigate("/login"); // Redirect after short delay
       }, 1500);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed.");
