@@ -34,7 +34,7 @@ const styles = {
   container: {
     marginTop: '20px',
     fontSize: '14px',
-    color: '#444',
+    // color: '#444',
     textAlign: 'center',
   },
   key: {

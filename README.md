@@ -21,6 +21,9 @@ The **Japa Counter App** is a cross-platform desktop application designed for in
 - 🌗 **Dark/Light Mode** toggle
 - 🔒 **Role-Based Access** – Separate views for users and admins
 - 📴 **Offline Mode** – Count without internet and sync later
+- 📤 **Export Japa history** to Excel with time and count
+- ✅ **Download confirmation** after saving file via system prompt
+- 🔔 **Reminder system** to prompt user to **submit past 7 days’ data** if missed
 - 📦 Fully packaged as a **desktop app** (.exe/.app)
 
 ## 📁 Installation

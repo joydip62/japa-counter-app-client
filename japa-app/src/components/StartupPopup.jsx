@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const StartupPopup = () => {
   const [show, setShow] = useState(true);
@@ -15,7 +15,7 @@ const StartupPopup = () => {
       <div style={styles.popup}>
         <div style={styles.topBar}>
           <img
-            src="/Srila-Prabhupada.png"
+            src="images/Srila-Prabhupada.png"
             alt="Srila Prabhupada"
             style={{ maxWidth: '100%', marginBottom: '10px' }}
           />
@@ -61,6 +61,7 @@ const styles = {
     textAlign: 'center',
     backgroundColor: '#f8f9fa',
     marginTop: '10px',
+    color: 'black'
   },
 };
 

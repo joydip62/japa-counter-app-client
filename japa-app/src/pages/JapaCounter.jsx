@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ButtonLink from "../components/NavButton";
 import ShortcutDisplay from "../components/ShortcutDisplay";
 import axios from "../utils/axios";
 import NavButton from "../components/NavButton";
@@ -9,7 +8,6 @@ export default function JapaCounter({ setUser }) {
   const [count, setCount] = useState(0);
   const [round, setRound] = useState(0);
   const [rounds, setRounds] = useState([]);
-  const [darkMode, setDarkMode] = useState(false);
   const loggedInUserEmail = localStorage.getItem("email");
 
   const [lastRoundDuration, setLastRoundDuration] = useState(null);
@@ -46,100 +44,228 @@ export default function JapaCounter({ setUser }) {
 
   const roundStartTimeRef = useRef(null);
 
+  // const increment = () => {
+  //   const today = new Date().toLocaleDateString();
+  //   const email = loggedInUserEmail;
+  //   const dailyKey = `dailyJapaData_${email}`;
+
+  //   setDailyData((prev) => {
+  //     const newCount = prev.totalCount + 1;
+
+  //     let newDuration = prev.totalDuration;
+
+  //     if (newCount % 108 === 1 || roundStartTimeRef.current === null) {
+  //       roundStartTimeRef.current = Date.now();
+  //     }
+  //     if (newCount % 108 === 0 && roundStartTimeRef.current) {
+  //       const roundDuration = Math.floor(
+  //         (Date.now() - roundStartTimeRef.current) / 1000
+  //       ); // ✅ fixed
+  //       newDuration += roundDuration;
+
+  //       const newRound = {
+  //         date: today,
+  //         email,
+  //         roundCount: 1,
+  //         duration: roundDuration,
+  //       };
+
+  //       const roundsKey = `japaRounds_${email}`;
+  //       const allRounds = JSON.parse(localStorage.getItem(roundsKey)) || [];
+  //       allRounds.push(newRound);
+  //       localStorage.setItem(roundsKey, JSON.stringify(allRounds));
+
+  //       setRounds(allRounds);
+
+  //       const todaysRounds = allRounds.filter(
+  //         (r) => r.date === today && r.email === loggedInUserEmail
+  //       );
+  //       setRound(todaysRounds.length);
+
+  //       const last = todaysRounds[todaysRounds.length - 1];
+  //       const minutes = Math.floor(last.duration / 60);
+  //       const seconds = last.duration % 60;
+  //       setLastRoundDuration(`${minutes}m ${seconds}s`);
+
+  //       roundStartTimeRef.current = null;
+  //     }
+
+  //     const updated = {
+  //       ...prev,
+  //       email,
+  //       totalCount: newCount,
+  //       totalDuration: newDuration,
+  //       date: today,
+  //     };
+
+      
+  //     localStorage.setItem(dailyKey, JSON.stringify(updated));
+  //     return updated;
+  //   });
+  // };
+
+  // const decrement = () => {
+  //   const email = loggedInUserEmail;
+  //   const dailyKey = `dailyJapaData_${email}`;
+
+  //   setDailyData((prev) => {
+  //     if (!prev || prev.totalCount <= 0) return prev;
+
+  //     if (prev.totalCount % 108 === 0) return prev;
+
+  //     const updated = {
+  //       ...prev,
+  //       email,
+  //       totalCount: prev.totalCount - 1,
+  //     };
+
+  //     localStorage.setItem(dailyKey, JSON.stringify(updated));
+  //     return updated;
+  //   });
+  // };
+
+  // const reset = () => {
+  //   const today = new Date().toLocaleDateString();
+  //   const email = loggedInUserEmail;
+  //   const dailyKey = `dailyJapaData_${email}`;
+
+  //   const resetData = {
+  //     date: today,
+  //     email,
+  //     totalCount: 0,
+  //     totalDuration: 0,
+  //   };
+
+  //   setDailyData(resetData);
+  //   localStorage.setItem(dailyKey, JSON.stringify(resetData));
+  //   roundStartTimeRef.current = null;
+  // };
+
+
   const increment = () => {
     const today = new Date().toLocaleDateString();
     const email = loggedInUserEmail;
+    const dailyKey = `dailyJapaData_${email}`;
 
-    setDailyData((prev) => {
-      const newCount = prev.totalCount + 1;
+    const existing = JSON.parse(localStorage.getItem(dailyKey)) || [];
+    const index = existing.findIndex((entry) => entry.date === today);
 
-      let newDuration = prev.totalDuration;
+    let totalCount = 0;
+    let totalDuration = 0;
 
-      if (newCount % 108 === 1 || roundStartTimeRef.current === null) {
-        roundStartTimeRef.current = Date.now();
-      }
-      if (newCount % 108 === 0 && roundStartTimeRef.current) {
-        const roundDuration = Date.now() - roundStartTimeRef.current;
-        newDuration += roundDuration;
-        const newRound = {
-          date: today,
-          email,
-          roundCount: 1,
-          duration: Math.floor(roundDuration / 1000),
-        };
+    if (index !== -1) {
+      totalCount = existing[index].totalCount + 1;
+      totalDuration = existing[index].totalDuration;
+    } else {
+      totalCount = 1;
+      totalDuration = 0;
+    }
 
-        const roundsKey = `japaRounds_${loggedInUserEmail}`;
+    if (totalCount % 108 === 1 || roundStartTimeRef.current === null) {
+      roundStartTimeRef.current = Date.now();
+    }
 
-        const allRounds = JSON.parse(localStorage.getItem(roundsKey)) || [];
-        allRounds.push(newRound);
-        localStorage.setItem(roundsKey, JSON.stringify(allRounds));
+    if (totalCount % 108 === 0 && roundStartTimeRef.current) {
+      const roundDuration = Math.floor(
+        (Date.now() - roundStartTimeRef.current) / 1000
+      );
+      totalDuration += roundDuration;
 
-        setRounds(allRounds);
-
-        const todaysRounds = allRounds.filter(
-          (r) => r.date === today && r.email === loggedInUserEmail
-        );
-        setRound(todaysRounds.length);
-
-        const last = todaysRounds[todaysRounds.length - 1];
-        const minutes = Math.floor(last.duration / 60);
-        const seconds = last.duration % 60;
-        setLastRoundDuration(`${minutes}m ${seconds}s`);
-
-        roundStartTimeRef.current = null;
-      }
-
-      const updated = {
-        ...prev,
-        email,
-        totalCount: newCount,
-        totalDuration: newDuration,
+      const newRound = {
         date: today,
+        email,
+        roundCount: 1,
+        duration: roundDuration,
       };
-      const dailyKey = `dailyJapaData_${loggedInUserEmail}`;
-      localStorage.setItem(dailyKey, JSON.stringify(updated));
-      return updated;
-    });
+
+      const roundsKey = `japaRounds_${email}`;
+      const allRounds = JSON.parse(localStorage.getItem(roundsKey)) || [];
+      allRounds.push(newRound);
+      localStorage.setItem(roundsKey, JSON.stringify(allRounds));
+      setRounds(allRounds);
+
+      const todaysRounds = allRounds.filter(
+        (r) => r.date === today && r.email === email
+      );
+      setRound(todaysRounds.length);
+
+      const last = todaysRounds[todaysRounds.length - 1];
+      const minutes = Math.floor(last.duration / 60);
+      const seconds = last.duration % 60;
+      setLastRoundDuration(`${minutes}m ${seconds}s`);
+
+      roundStartTimeRef.current = null;
+    }
+
+    const updatedToday = {
+      date: today,
+      email,
+      totalCount,
+      totalDuration,
+    };
+
+    if (index !== -1) {
+      existing[index] = updatedToday;
+    } else {
+      existing.push(updatedToday);
+    }
+
+    localStorage.setItem(dailyKey, JSON.stringify(existing));
+    setDailyData(updatedToday);
   };
+
 
   const decrement = () => {
     const email = loggedInUserEmail;
+    const today = new Date().toLocaleDateString();
     const dailyKey = `dailyJapaData_${email}`;
 
-    setDailyData((prev) => {
-      if (!prev || prev.totalCount <= 0) return prev;
+    const existing = JSON.parse(localStorage.getItem(dailyKey)) || [];
+    const index = existing.findIndex((entry) => entry.date === today);
 
-      if (prev.totalCount % 108 === 0) return prev;
+    if (index === -1 || existing[index].totalCount <= 0) return;
 
-      const updated = {
-        ...prev,
-        email,
-        totalCount: prev.totalCount - 1,
-      };
+    if (existing[index].totalCount % 108 === 0) return; // block decrementing completed round
 
-      localStorage.setItem(dailyKey, JSON.stringify(updated));
-      return updated;
-    });
+    existing[index].totalCount -= 1;
+    localStorage.setItem(dailyKey, JSON.stringify(existing));
+    setDailyData(existing[index]);
   };
 
+
   const reset = () => {
-    const today = new Date().toLocaleDateString();
     const email = loggedInUserEmail;
+    const today = new Date().toLocaleDateString();
     const dailyKey = `dailyJapaData_${email}`;
 
-    const resetData = {
-      date: today,
-      email,
-      totalCount: 0,
-      totalDuration: 0,
-    };
+    const existing = JSON.parse(localStorage.getItem(dailyKey)) || [];
+    const index = existing.findIndex((entry) => entry.date === today);
 
-    setDailyData(resetData);
-    localStorage.setItem(dailyKey, JSON.stringify(resetData));
+    if (index !== -1) {
+      existing[index] = {
+        date: today,
+        email,
+        totalCount: 0,
+        totalDuration: 0,
+      };
+      localStorage.setItem(dailyKey, JSON.stringify(existing));
+      setDailyData(existing[index]);
+    } else {
+      const resetData = {
+        date: today,
+        email,
+        totalCount: 0,
+        totalDuration: 0,
+      };
+      existing.push(resetData);
+      localStorage.setItem(dailyKey, JSON.stringify(existing));
+      setDailyData(resetData);
+    }
+
     roundStartTimeRef.current = null;
   };
 
-  const toggleTheme = () => setDarkMode(!darkMode);
+
 
   const handleSubmitDayData = async () => {
     const today = new Date().toLocaleDateString();
@@ -181,12 +307,19 @@ export default function JapaCounter({ setUser }) {
 
     try {
       await axios.post("/rounds/daily", dailyDataToSend);
+      const hours = Math.floor(totalDuration / 3600);
+      const minutes = Math.floor((totalDuration % 3600) / 60);
+      const seconds = totalDuration % 60;
+
       alert(
-        `Today you completed ${totalRounds} round(s) and spent ${Math.floor(
-          totalDuration / 60
-        )} minute(s).`
+        `Today you completed ${totalRounds} round(s) and spent ${String(
+          hours
+        ).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(
+          seconds
+        ).padStart(2, '0')} (hh:mm:ss).`
       );
       localStorage.setItem(submittedKey, today);
+      localStorage.removeItem(dailyKey);
       navigate("/user-dashboard");
 
       // Optional: Clear today's entries from localStorage if needed
@@ -249,10 +382,6 @@ export default function JapaCounter({ setUser }) {
     return () => window.electronAPI?.removeAllListeners();
   }, [loggedInUserEmail, dailyData.totalCount]);
 
-  const themeStyles = {
-    backgroundColor: darkMode ? "#111" : "#f0f0f0",
-    color: darkMode ? "#fff" : "#333",
-  };
 
   useEffect(() => {
     const email = loggedInUserEmail;
@@ -269,27 +398,45 @@ export default function JapaCounter({ setUser }) {
     }
   }, [loggedInUserEmail]);
 
-  // const isUserData = dailyData?.email === loggedInUserEmail;
-  // console.log("japa counter,", isUserData);
-
-  const totalDuration = rounds.reduce((sum, r) => sum + (r?.duration || 0), 0);
-
-
-  // useEffect(() => {
-  //   function handleKeyDown(e) {
-  //     if (e.key === "i") increment();
-  //     else if (e.key === "o") decrement();
-  //     else if (e.key === "p") reset();
-  //   }
-
-  //   window.addEventListener("keydown", handleKeyDown);
-  //   return () => window.removeEventListener("keydown", handleKeyDown);
-  // }, []);
+  // const totalDuration = rounds.reduce((sum, r) => sum + (r?.duration || 0), 0);
   
+  const today = new Date().toLocaleDateString(); // e.g. "7/19/2025"
+  const email = loggedInUserEmail;
+  const storageKey = `japaRounds_${email}`;
+
+// Get the full round data for the user
+const allRounds = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+// Filter only today's records
+const todayRounds = allRounds.filter((round) => round.date === today);
+
+  
+  useEffect(() => {
+    const email = localStorage.getItem('email');
+    const dailyKey = `dailyJapaData_${email}`;
+    const today = new Date().toLocaleDateString(); 
+
+    const data = JSON.parse(localStorage.getItem(dailyKey)) || [];
+
+    const todayEntry = data.find((entry) => entry.date === today);
+
+    if (todayEntry) {
+      setDailyData(todayEntry);
+    } else {
+      const freshEntry = {
+        date: today,
+        email,
+        totalCount: 0,
+        totalDuration: 0,
+      };
+      setDailyData(freshEntry);
+      localStorage.setItem(dailyKey, JSON.stringify([...data, freshEntry]));
+    }
+  }, []);
+
   return (
     <div
       style={{
-        ...themeStyles,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -306,12 +453,23 @@ export default function JapaCounter({ setUser }) {
         path="/user-dashboard"
       />
 
+      <div style={styles.mantraWrapper}>
+        <em style={styles.line}>
+          śrī-kṛṣṇa-caitanya prabhu-nityānanda <br />
+          śrī-advaita gadādhara śrīvāsādi-gaura-bhakta-vṛnda
+        </em>
+        <em style={styles.line}>
+          <b>MAHĀ-MANTRA:</b> <br />
+          Hare Kṛṣṇa, Hare Kṛṣṇa, Kṛṣṇa Kṛṣṇa, Hare Hare <br />
+          Hare Rāma, Hare Rāma, Rāma Rāma, Hare Hare
+        </em>
+      </div>
+
       <div
         style={{
           fontSize: '5rem',
           marginBottom: '20px',
           fontWeight: 'bold',
-          color: themeStyles.color,
         }}
       >
         {count}
@@ -341,17 +499,11 @@ export default function JapaCounter({ setUser }) {
         </div>
       )}
 
-      <button
-        onClick={toggleTheme}
-        style={{ ...buttonStyle, backgroundColor: darkMode ? '#444' : '#222' }}
-      >
-        Toggle {darkMode ? 'Light' : 'Dark'} Mode
-      </button>
       <div
         style={{
           marginTop: '30px',
           fontSize: '1rem',
-          color: darkMode ? '#aaa' : '#666',
+          color: '#666',
         }}
       >
         <ShortcutDisplay />
@@ -362,25 +514,23 @@ export default function JapaCounter({ setUser }) {
           style={{
             fontSize: '1.5rem',
             marginBottom: '10px',
-            color: themeStyles.color,
           }}
         >
           Round Durations
         </h2>
 
-        {rounds.length === 0 ? (
-          <h3 style={{ color: themeStyles.color }}>No data found</h3>
+        {todayRounds.length === 0 ? (
+          <h3>No data found</h3>
         ) : (
           <>
             <table
               style={{
                 width: '100%',
                 borderCollapse: 'collapse',
-                color: themeStyles.color,
               }}
             >
               <thead>
-                <tr style={{ backgroundColor: darkMode ? '#444' : '#ccc' }}>
+                <tr style={{ backgroundColor: '#ccc' }}>
                   <th style={{ border: '1px solid #999', padding: '10px' }}>
                     Round
                   </th>
@@ -390,7 +540,7 @@ export default function JapaCounter({ setUser }) {
                 </tr>
               </thead>
               <tbody>
-                {rounds.map((round, index) => {
+                {todayRounds.map((round, index) => {
                   const minutes = Math.floor(round.duration / 60);
                   const seconds = round.duration % 60;
 
@@ -420,33 +570,43 @@ export default function JapaCounter({ setUser }) {
               </tbody>
             </table>
 
-            <button
-              onClick={handleSubmitDayData}
-              style={{
-                ...buttonStyle,
-                backgroundColor: 'green',
-                color: 'white',
-                marginTop: '20px',
-                padding: '10px 20px',
-                fontWeight: 'bold',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-              }}
-            >
-              Submit Daily Data
-            </button>
+            <div style={{ textAlign: 'center' }}>
+              <button
+                onClick={handleSubmitDayData}
+                style={{
+                  backgroundColor: 'green',
+                  color: 'white',
+                  marginTop: '20px',
+                  padding: '10px 20px',
+                  fontWeight: 'bold',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                Submit Today's Data to Cloud
+              </button>
+            </div>
 
             <div
               style={{
                 marginTop: '10px',
                 fontSize: '1rem',
-                color: themeStyles.color,
                 textAlign: 'center',
               }}
             >
-              Total Time Today: {Math.floor(totalDuration / 60)}m{' '}
-              {totalDuration % 60}s
+              <p>
+                Total Time Today:{' '}
+                {String(Math.floor(dailyData.totalDuration / 3600)).padStart(
+                  2,
+                  '0'
+                )}
+                :
+                {String(
+                  Math.floor((dailyData.totalDuration % 3600) / 60)
+                ).padStart(2, '0')}
+                :{String(dailyData.totalDuration % 60).padStart(2, '0')}
+              </p>
             </div>
           </>
         )}
@@ -467,4 +627,23 @@ const buttonStyle = {
   boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
   transition: "background-color 0.3s ease",
 };
+const styles = {
+  mantraWrapper: {
+    textAlign: 'center',
+    padding: '30px 20px',
+    backgroundColor: '#fdf6e3',
+    borderRadius: '10px',
+    fontFamily: "'Georgia', serif",
+    color: '#4a3f35',
+    margin: '30px 0',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+  },
+  line: {
+    display: 'block',
+    fontSize: '18px',
+    lineHeight: '1.8',
+    marginBottom: '15px',
+  },
+};
+
 

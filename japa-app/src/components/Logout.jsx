@@ -10,6 +10,7 @@ const LogoutButton = () => {
     localStorage.removeItem("user"); 
     localStorage.removeItem("role"); 
     localStorage.removeItem("email"); 
+    localStorage.removeItem('loginTime');
     navigate('/login');
   };
 

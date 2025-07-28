@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
 
@@ -11,17 +11,9 @@ export default function Login({ setUser }) {
   const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [showDelayModal, setShowDelayModal] = useState(false);
 
-  // Pre-fill form if "Remember Me" is enabled
-  // useEffect(() => {
-  //   const saved = localStorage.getItem('rememberMeData');
-  //   if (saved) {
-  //     const parsed = JSON.parse(saved);
-  //     setForm({ email: parsed.email, password: parsed.password });
-  //     setRemember(true);
-  //   }
-  // }, []);
+  const navigate = useNavigate();
 
   // Auto-fill saved credentials if "Remember Me" was checked
   useEffect(() => {
@@ -41,6 +33,12 @@ export default function Login({ setUser }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    // Show modal if delay exceeds 3 seconds
+    const delayTimer = setTimeout(() => {
+      setShowDelayModal(true);
+    }, 3000);
+
     try {
       const res = await axios.post('/auth/login', form);
       const { token, role, email } = res.data;
@@ -48,6 +46,7 @@ export default function Login({ setUser }) {
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
       localStorage.setItem('email', email);
+      localStorage.setItem('loginTime', Date.now());
 
       if (window.electronAPI?.send) {
         window.electronAPI.send('set-user-email', res.data.email);
@@ -59,7 +58,6 @@ export default function Login({ setUser }) {
         localStorage.removeItem('rememberMeData');
       }
 
-
       setUser({ token, role });
       setForm({ email: '', password: '' });
 
@@ -70,12 +68,18 @@ export default function Login({ setUser }) {
       //   setForm({ email: '', password: '' });
       //   navigate('/user-dashboard');
       // }
+      clearTimeout(delayTimer);
+      setShowDelayModal(false);
+      setLoading(false);
+
       navigate(role === 'admin' ? '/admin-dashboard' : '/user-dashboard');
     } catch (err) {
       console.error('Login error:', err);
       alert(err.response?.data?.error || 'Login failed');
     } finally {
       setLoading(false);
+       clearTimeout(delayTimer);
+       setShowDelayModal(false);
     }
   };
 
@@ -162,6 +166,16 @@ export default function Login({ setUser }) {
           </Link>
         </div>
       </form>
+      {showDelayModal && (
+        <div style={modalOverlay}>
+          <div style={modalContent}>
+            <p style={{ margin: 0 }}>
+              {' '}
+              ⏳ Login is taking longer than usual... Please wait.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -174,7 +188,6 @@ const containerStyle = {
   backgroundColor: "#f5f7fa",
   fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
 };
-
 const formStyle = {
   display: "flex",
   flexDirection: "column",
@@ -280,3 +293,34 @@ const styles = {
     fontWeight: '500',
   },
 };
+
+
+// message modal
+const modalOverlay = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '100vw',
+  height: '100vh',
+  backgroundColor: 'rgba(0,0,0,0.3)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 1000,
+};
+
+const modalContent = {
+  backgroundColor: '#fff',
+  padding: '20px 30px',
+  borderRadius: '10px',
+  fontSize: '18px',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+};
+//   marginTop: '15px',
+//   padding: '10px 20px',
+//   backgroundColor: '#007bff',
+//   color: 'white',
+//   border: 'none',
+//   borderRadius: '6px',
+//   cursor: 'pointer',
+// };

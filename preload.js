@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
       'update-shortcuts',
       'set-user-email',
       'install-update',
+      'force-logout-focus',
     ];
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);

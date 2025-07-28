@@ -18,6 +18,11 @@ import ResetPassword from './pages/ResetPassword';
 import UserDashboard from './pages/UserDashboard';
 import ResetRedirect from './pages/ResetRedirect';
 import StartupPopup from './components/StartupPopup';
+import Credit from './components/Credit';
+import { ThemeProvider } from './context/ThemeContext';
+import ThemeToggle from './components/ThemeToggle';
+import AutoLogout from './components/AutoLogout';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function DeepLinkHandler({ setPendingToken }) {
   const navigate = useNavigate();
@@ -62,73 +67,85 @@ export default function App() {
   if (checkingAuth) return <div>Loading...</div>;
 
   return (
-    <Router>
-      <DeepLinkHandler setPendingToken={setPendingToken} />
-      <StartupPopup />
-      <UpdateBanner />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            user ? (
-              user.role === 'admin' ? (
-                <Navigate to="/admin-dashboard" />
+    <ThemeProvider>
+      <Router>
+        <AutoLogout />
+        <DeepLinkHandler setPendingToken={setPendingToken} />
+        <StartupPopup />
+        <UpdateBanner />
+        <Credit />
+        <ThemeToggle />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              user ? (
+                user.role === 'admin' ? (
+                  <Navigate to="/admin-dashboard" />
+                ) : (
+                  <Navigate to="/user-dashboard" />
+                )
+              ) : pendingToken ? (
+                <Navigate to={`/reset-password?token=${pendingToken}`} />
               ) : (
-                <Navigate to="/user-dashboard" />
+                <Login setUser={setUser} />
               )
-            ) : pendingToken ? (
-              <Navigate to={`/reset-password?token=${pendingToken}`} />
-            ) : (
-              <Login setUser={setUser} />
-            )
-          }
-        />
-        <Route path="/login" element={<Login setUser={setUser} />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/reset-redirect" element={<ResetRedirect />} />
-        <Route
-          path="/japaCounter"
-          element={
-            user && user.role === 'user' ? (
-              <JapaCounter setUser={setUser} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/shortCutKey"
-          element={
-            user && user.role === 'user' ? (
-              <ShortcutSettings />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/user-dashboard"
-          element={
-            user && user.role === 'user' ? (
-              <UserDashboard setUser={setUser} />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/admin-dashboard"
-          element={
-            user && user.role === 'admin' ? (
-              <AdminDashboard setUser={setUser} />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-      </Routes>
-    </Router>
+            }
+          />
+          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/reset-redirect" element={<ResetRedirect />} />
+
+          <Route
+            path="/japaCounter"
+            element={
+              user && user.role === 'user' ? (
+                <ProtectedRoute>
+                  <JapaCounter setUser={setUser} />
+                </ProtectedRoute>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/shortCutKey"
+            element={
+              user && user.role === 'user' ? (
+                <ProtectedRoute>
+                  <ShortcutSettings />
+                </ProtectedRoute>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/user-dashboard"
+            element={
+              user && user.role === 'user' ? (
+                <ProtectedRoute>
+                  <UserDashboard setUser={setUser} />
+                </ProtectedRoute>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/admin-dashboard"
+            element={
+              user && user.role === 'admin' ? (
+                <AdminDashboard setUser={setUser} />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
