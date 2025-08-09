@@ -6,6 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 export default function Register() {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [showDelayModal, setShowDelayModal] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
@@ -16,29 +17,41 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
     setLoading(true);
 
+    // Show modal if delay exceeds 3 seconds
+    const delayTimer = setTimeout(() => {
+      setShowDelayModal(true);
+    }, 3000);
+
     try {
-      const res = await axios.post("/auth/register", form);
-      setSuccess(res.data.message || "Registration successful!");
-      setForm({ username: "", email: "", password: "" });
+      const res = await axios.post('/auth/register', form);
+      setSuccess(res.data.message || 'Registration successful!');
+      setForm({ username: '', email: '', password: '' });
 
       setTimeout(() => {
-        navigate("/login"); // Redirect after short delay
+        navigate('/login'); // Redirect after short delay
       }, 1500);
+      clearTimeout(delayTimer);
+      setShowDelayModal(false);
+      setLoading(false);
+      
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed.");
+      setError(err.response?.data?.message || 'Registration failed.');
     } finally {
       setLoading(false);
+      clearTimeout(delayTimer);
+      setShowDelayModal(false);
+          
     }
   };
 
   return (
     <div style={containerStyle}>
       <form onSubmit={handleSubmit} style={formStyle}>
-        <h2 style={{ marginBottom: "20px", color: "#222" }}>Register</h2>
+        <h2 style={{ marginBottom: '20px', color: '#222' }}>Register</h2>
 
         {error && <p style={errorStyle}>{error}</p>}
         {success && <p style={successStyle}>{success}</p>}
@@ -70,16 +83,26 @@ export default function Register() {
           style={inputStyle}
         />
         <button type="submit" disabled={loading} style={buttonStyle}>
-          {loading ? "Registering..." : "Register"}
+          {loading ? 'Registering...' : 'Register'}
         </button>
 
-        <div style={{ marginTop: "15px", fontSize: "0.9rem", color: "#555" }}>
-          Already have an account?{" "}
+        <div style={{ marginTop: '15px', fontSize: '0.9rem', color: '#555' }}>
+          Already have an account?{' '}
           <Link to="/login" style={linkStyle}>
             Login here
           </Link>
         </div>
       </form>
+      {showDelayModal && (
+        <div style={modalOverlay}>
+          <div style={modalContent}>
+            <p style={{ margin: 0 }}>
+              {' '}
+              ⏳ Login is taking longer than usual... Please wait.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -90,7 +113,7 @@ const containerStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: "#f5f7fa",
+  // backgroundColor: "#f5f7fa",
   fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
 };
 
@@ -141,4 +164,25 @@ const successStyle = {
   color: "green",
   marginBottom: "10px",
   fontSize: "0.9rem",
+};
+// message modal
+const modalOverlay = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '100vw',
+  height: '100vh',
+  backgroundColor: 'rgba(0,0,0,0.3)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 1000,
+};
+
+const modalContent = {
+  backgroundColor: '#fff',
+  padding: '20px 30px',
+  borderRadius: '10px',
+  fontSize: '18px',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
 };

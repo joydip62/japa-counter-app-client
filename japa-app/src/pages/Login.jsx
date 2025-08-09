@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
 
@@ -12,6 +12,8 @@ export default function Login({ setUser }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showDelayModal, setShowDelayModal] = useState(false);
+
+  const emailInputRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -78,10 +80,15 @@ export default function Login({ setUser }) {
       alert(err.response?.data?.error || 'Login failed');
     } finally {
       setLoading(false);
-       clearTimeout(delayTimer);
-       setShowDelayModal(false);
+      clearTimeout(delayTimer);
+      setShowDelayModal(false);
     }
   };
+
+  // Focus on email input when component mounts
+  useEffect(() => {
+    emailInputRef.current?.focus();
+  }, []);
 
   return (
     <div style={containerStyle}>
@@ -116,6 +123,7 @@ export default function Login({ setUser }) {
             setForm((prev) => ({ ...prev, email: e.target.value }))
           }
           required
+          ref={emailInputRef}
           style={inputStyle}
         />
 
@@ -185,7 +193,7 @@ const containerStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: "#f5f7fa",
+  // backgroundColor: "#f5f7fa",
   fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
 };
 const formStyle = {

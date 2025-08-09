@@ -58,7 +58,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f7fa',
+    // backgroundColor: '#f5f7fa',
   },
   form: {
     width: '320px',

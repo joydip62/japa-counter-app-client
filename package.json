@@ -1,6 +1,6 @@
 {
   "name": "japa-count-app",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "this is a japa counter app",
   "main": "main.js",
   "scripts": {
@@ -39,6 +39,13 @@
     ],
     "win": {
       "icon": "icon/japa.ico"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.productivity"
     },
     "publish": [
       {

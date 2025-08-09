@@ -368,33 +368,64 @@ const UserDashboard = ({ setUser }) => {
   const [downloading, setDownloading] = useState(false);
   const [downloadMsg, setDownloadMsg] = useState('');
 
+  // date sort
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
-  const formatDuration = (seconds) => {
-    const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
-    const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-    const secs = String(seconds % 60).padStart(2, '0');
-    return `${hrs}:${mins}:${secs}`;
-  };
+  // const formatDuration = (seconds) => {
+  //   const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+  //   const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+  //   const secs = String(seconds % 60).padStart(2, '0');
+  //   return `${hrs}:${mins}:${secs}`;
+  // };
+
+  // const exportToExcel = () => {
+  //   setDownloading(true);
+  //   setDownloadMsg('Downloading...');
+
+  //   try {
+  //     const filteredData = records.map((rec) => ({
+  //       date: new Date(rec.date).toLocaleDateString(),
+  //       email: rec.email,
+  //       roundCount: rec.roundCount,
+  //       duration: formatDuration(rec.duration),
+  //     }));
+
+  //     const worksheet = XLSX.utils.json_to_sheet(filteredData);
+  //     const workbook = XLSX.utils.book_new();
+  //     XLSX.utils.book_append_sheet(workbook, worksheet, 'Japa History');
+
+  //     XLSX.writeFile(workbook, 'japa_records.xlsx');
+
+  //     setDownloadMsg('Download completed ✅');
+  //   } catch (error) {
+  //     console.error('Download failed:', error);
+  //     setDownloadMsg('Download failed ❌');
+  //   } finally {
+  //     setTimeout(() => {
+  //       setDownloading(false);
+  //       setDownloadMsg('');
+  //     }, 2000);
+  //   }
+  // };
 
   const exportToExcel = () => {
-    setDownloading(true);
-    setDownloadMsg('Downloading...');
-
     try {
-      const filteredData = records.map((rec) => ({
-        date: new Date(rec.date).toLocaleDateString(),
-        email: rec.email,
-        roundCount: rec.roundCount,
-        duration: formatDuration(rec.duration),
+      const dataToExport = filteredRecords.map((rec) => ({
+        Date: new Date(rec.date).toLocaleDateString(),
+        Rounds: rec.roundCount,
+        'Time Spent (hh:mm:ss)': `${String(
+          Math.floor(rec.duration / 3600)
+        ).padStart(2, '0')}:${String(
+          Math.floor((rec.duration % 3600) / 60)
+        ).padStart(2, '0')}:${String(rec.duration % 60).padStart(2, '0')}`,
       }));
 
-      const worksheet = XLSX.utils.json_to_sheet(filteredData);
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Japa History');
 
-      XLSX.writeFile(workbook, 'japa_records.xlsx');
-
-      setDownloadMsg('Download completed ✅');
+      XLSX.writeFile(workbook, 'Japa_History.xlsx');
     } catch (error) {
       console.error('Download failed:', error);
       setDownloadMsg('Download failed ❌');
@@ -406,32 +437,65 @@ const UserDashboard = ({ setUser }) => {
     }
   };
 
-
-
   // Fetch cloud-saved records
-  const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 7;
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = records.slice(indexOfFirstRecord, indexOfLastRecord);
-  const totalPages = Math.ceil(records.length / recordsPerPage);
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const recordsPerPage = 5;
+  // const indexOfLastRecord = currentPage * recordsPerPage;
+  // const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  // const currentRecords = records.slice(indexOfFirstRecord, indexOfLastRecord);
+  // const totalPages = Math.ceil(records.length / recordsPerPage);
 
-  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 5;
+
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-          setLoading(true);
+        setLoading(true);
         const res = await axios.get('/rounds/history');
         setRecords(res.data);
       } catch (error) {
         console.error('Error fetching records:', error);
-      }finally {
-    setLoading(false);
-  }
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchRecords();
   }, []);
+
+  // Reset current page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [fromDate, toDate]);
+
+  const normalizeDate = (dateStr) => {
+    const d = new Date(dateStr);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  const filteredRecords = records.filter((rec) => {
+    const recDate = normalizeDate(rec.date);
+    const from = fromDate ? normalizeDate(fromDate) : null;
+    const to = toDate ? normalizeDate(toDate) : null;
+
+    if (from && to) return recDate >= from && recDate <= to;
+    if (from) return recDate >= from;
+    if (to) return recDate <= to;
+    return true; // No filter applied
+  });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredRecords.slice(
+    indexOfFirstRecord,
+    indexOfLastRecord
+  );
+
 
   // useEffect(() => {
   //   const email = localStorage.getItem('email') || '';
@@ -481,17 +545,15 @@ const UserDashboard = ({ setUser }) => {
     }
   }, []);
 
-
   const handleSubmitAllPastData = async () => {
-    if (isSubmitting) return; 
+    if (isSubmitting) return;
     setIsSubmitting(true);
-  
+
     const email = localStorage.getItem('email');
     const dailyKey = `dailyJapaData_${email}`;
     const dailyJapaRounds = `japaRounds_${email}`;
     const data = JSON.parse(localStorage.getItem(dailyKey)) || [];
     const today = new Date().toLocaleDateString();
-
 
     const unsynced = data.filter((entry) => entry.date !== today);
 
@@ -510,7 +572,7 @@ const UserDashboard = ({ setUser }) => {
         const parsedDate = new Date(date);
         const payload = {
           email,
-          roundCount: Math.round(totalCount / 108), 
+          roundCount: Math.round(totalCount / 108),
           duration: totalDuration,
           date: parsedDate.toISOString(),
         };
@@ -532,6 +594,32 @@ const UserDashboard = ({ setUser }) => {
     }
   };
 
+  if (loading)
+    return (
+      <div
+        style={{
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          background: '#f7f9fc',
+          flexDirection: 'column',
+          fontFamily: 'Arial, sans-serif',
+        }}
+      >
+        <div className="spinner" />
+        <p
+          style={{
+            marginTop: '20px',
+            fontSize: '18px',
+            color: '#333',
+          }}
+        >
+          Checking authentication...
+        </p>
+      </div>
+    );
+
   return (
     <div style={styles.container}>
       {forceSubmit && (
@@ -548,6 +636,29 @@ const UserDashboard = ({ setUser }) => {
       />
       <h3 style={styles.sectionTitle}>☁️ Cloud Saved Data</h3>
       <div style={styles.tableWrapper}>
+        <label>From: </label>
+        <input
+          type="date"
+          value={fromDate}
+          onChange={(e) => setFromDate(e.target.value)}
+          style={{ marginRight: '10px' }}
+        />
+        <label>To: </label>
+        <input
+          type="date"
+          value={toDate}
+          onChange={(e) => setToDate(e.target.value)}
+        />
+        <button
+          onClick={() => {
+            setFromDate('');
+            setToDate('');
+          }}
+          style={{ marginLeft: '10px' }}
+        >
+          Clear Filter
+        </button>
+
         <button
           onClick={exportToExcel}
           disabled={downloading}

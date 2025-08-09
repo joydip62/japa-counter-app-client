@@ -64,7 +64,33 @@ export default function App() {
     setCheckingAuth(false);
   }, []);
 
-  if (checkingAuth) return <div>Loading...</div>;
+  // if (checkingAuth) return <div>Loading...</div>;
+  if (checkingAuth)
+    return (
+      <div
+        style={{
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          background: '#f7f9fc',
+          flexDirection: 'column',
+          fontFamily: 'Arial, sans-serif',
+        }}
+      >
+        <div className="spinner" />
+        <p
+          style={{
+            marginTop: '20px',
+            fontSize: '18px',
+            color: '#333',
+          }}
+        >
+          Checking authentication...
+        </p>
+      </div>
+    );
+
 
   return (
     <ThemeProvider>
@@ -130,7 +156,7 @@ export default function App() {
                   <UserDashboard setUser={setUser} />
                 </ProtectedRoute>
               ) : (
-                <Navigate to="/" />
+                <Navigate to="/login" />
               )
             }
           />
@@ -138,9 +164,11 @@ export default function App() {
             path="/admin-dashboard"
             element={
               user && user.role === 'admin' ? (
-                <AdminDashboard setUser={setUser} />
+                <ProtectedRoute>
+                  <AdminDashboard setUser={setUser} />
+                </ProtectedRoute>
               ) : (
-                <Navigate to="/" />
+                <Navigate to="/login" />
               )
             }
           />

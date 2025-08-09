@@ -7,13 +7,11 @@ const { autoUpdater } = require('electron-updater');
 
 const log = require('electron-log');
 
-
-
-
-
 let mainWindow;
 const userDataPath = app.getPath('userData');
 const shortcutFile = path.join(userDataPath, 'shortcuts.json');
+
+const currentUserFile = path.join(userDataPath, 'current_user_email.json');
 
 log.transports.file.level = 'info';
 autoUpdater.logger = log;
@@ -78,13 +76,36 @@ function createWindow() {
     autoUpdater.checkForUpdatesAndNotify();
   });
 }
+
+// ✅ Setup shortcut handling ===================================
+// let savedShortcuts = {
+//   increment: 'F7',
+//   decrement: 'F8',
+//   reset: 'F9',
+// };
+
+let defaultShortcuts = {
+  increment: 'F7',
+  decrement: 'F8',
+  reset: 'F9',
+};
+ 
 // ✅ Validate shortcut object structure
-function isValidShortcutSet(shortcuts) {
+// function isValidShortcutSet(shortcuts) {
+//   return (
+//     shortcuts &&
+//     typeof shortcuts.increment === 'string' &&
+//     typeof shortcuts.decrement === 'string' &&
+//     typeof shortcuts.reset === 'string'
+//   );
+// }
+function isValidShortcutSet(obj) {
   return (
-    shortcuts &&
-    typeof shortcuts.increment === 'string' &&
-    typeof shortcuts.decrement === 'string' &&
-    typeof shortcuts.reset === 'string'
+    obj &&
+    typeof obj === 'object' &&
+    typeof obj.increment === 'string' &&
+    typeof obj.decrement === 'string' &&
+    typeof obj.reset === 'string'
   );
 }
 // ✅ Register keyboard shortcuts
@@ -115,90 +136,211 @@ function registerUserShortcuts(shortcuts) {
 app.whenReady().then(() => {
   createWindow();
 
-  // ✅ Setup shortcut handling ===================================
-  let savedShortcuts = {
-    increment: 'F7',
-    decrement: 'F8',
-    reset: 'F9',
-  };
-
   // Try loading saved global shortcut config
-  if (fs.existsSync(shortcutFile)) {
+  // if (fs.existsSync(shortcutFile)) {
+  //   try {
+  //     const data = fs.readFileSync(shortcutFile);
+  //     const parsed = JSON.parse(data);
+  //     if (isValidShortcutSet(parsed)) {
+  //       savedShortcuts = parsed;
+  //     } else {
+  //       throw new Error('Invalid shortcut structure');
+  //     }
+  //   } catch (err) {
+  //     console.warn('Invalid shortcuts file, using defaults.');
+  //   }
+  // }
+
+  // ipcMain.on('set-user-email', (event, email) => {
+  //   // const userFile = path.join(userDataPath, `shortcuts_${email}.json`);
+  //   const userFile = path.join(userDataPath, `japa_shortcuts_${email}.json`);
+
+  //   fs.writeFileSync(currentUserFile, JSON.stringify(email));
+
+  //   if (fs.existsSync(userFile)) {
+  //     try {
+  //       const shortcuts = JSON.parse(fs.readFileSync(userFile));
+  //       if (isValidShortcutSet(shortcuts)) {
+  //         registerUserShortcuts(shortcuts);
+  //       } else {
+  //         throw new Error('Invalid user shortcut file structure');
+  //       }
+  //     } catch (err) {
+  //       console.warn('Failed to load user shortcut file, using defaults.');
+  //       registerUserShortcuts({
+  //         increment: 'F7',
+  //         decrement: 'F8',
+  //         reset: 'F9',
+  //       });
+  //     }
+  //   } else {
+  //     registerUserShortcuts({
+  //       increment: 'F7',
+  //       decrement: 'F8',
+  //       reset: 'F9',
+  //     });
+  //   }
+  // });
+
+  // // ✅ Handle shortcut update from UI
+  // ipcMain.on('update-shortcuts', (event, { email, shortcuts }) => {
+  //   const userFile = path.join(userDataPath, `japa_shortcuts_${email}.json`);
+  //   fs.writeFileSync(userFile, JSON.stringify(shortcuts));
+  //   fs.writeFileSync(currentUserFile, JSON.stringify(email));
+  //   registerUserShortcuts(shortcuts);
+  // });
+
+  // ipcMain.handle('get-user-shortcuts', (event, email) => {
+  //   // const userFile = path.join(app.getPath('userData'),`japa_shortcuts_${email}.json`);
+  //   const userFile = path.join(userDataPath, `japa_shortcuts_${email}.json`);
+
+  //   try {
+  //     if (fs.existsSync(userFile)) {
+  //       const raw = fs.readFileSync(userFile, 'utf-8');
+  //       const data = JSON.parse(raw);
+
+  //       if (data.increment && data.decrement && data.reset) {
+  //         return data;
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error('Error reading shortcuts for:', email, err);
+  //   }
+
+  //   console.warn('Invalid shortcuts file, using defaults.');
+  //   return {
+  //     increment: 'F7',
+  //     decrement: 'F8',
+  //     reset: 'F9',
+  //   };
+  // });
+
+  // ipcMain.handle('register-shortcuts-after-login', async (event, email) => {
+  //   const userFile = path.join(userDataPath, `japa_shortcuts_${email}.json`);
+  //   let shortcuts = {
+  //     increment: 'F7',
+  //     decrement: 'F8',
+  //     reset: 'F9',
+  //   };
+
+  //   if (fs.existsSync(userFile)) {
+  //     const data = fs.readFileSync(userFile);
+  //     shortcuts = JSON.parse(data);
+  //   }
+
+  //   // First, unregister old
+  //   globalShortcut.unregisterAll();
+
+  //   // Register updated
+  //   globalShortcut.register(shortcuts.increment, () => {
+  //     event.sender.send('shortcut-pressed', 'increment');
+  //   });
+  //   globalShortcut.register(shortcuts.decrement, () => {
+  //     event.sender.send('shortcut-pressed', 'decrement');
+  //   });
+  //   globalShortcut.register(shortcuts.reset, () => {
+  //     event.sender.send('shortcut-pressed', 'reset');
+  //   });
+
+  //   return true;
+  // });
+
+  // ✅ Setup shortcut handling ==================================
+
+  // Load last active user's shortcut
+  if (fs.existsSync(currentUserFile)) {
     try {
-      const data = fs.readFileSync(shortcutFile);
-      const parsed = JSON.parse(data);
-      if (isValidShortcutSet(parsed)) {
-        savedShortcuts = parsed;
+      const currentEmail = JSON.parse(fs.readFileSync(currentUserFile));
+      const userFile = path.join(
+        userDataPath,
+        `japa_shortcuts_${currentEmail}.json`
+      );
+      if (fs.existsSync(userFile)) {
+        const data = JSON.parse(fs.readFileSync(userFile));
+        if (isValidShortcutSet(data)) {
+          defaultShortcuts = data;
+        } else {
+          console.warn('User shortcut file exists but is invalid. Using fallback defaults.');
+        }
       } else {
-        throw new Error('Invalid shortcut structure');
+        console.log('No shortcut file found for user. Using fallback defaults.');
       }
     } catch (err) {
-      console.warn('Invalid shortcuts file, using defaults.');
+      console.error('Error reading user shortcut file:', err);
     }
   }
 
-  registerUserShortcuts(savedShortcuts);
+  registerUserShortcuts(defaultShortcuts);
 
+  
+  // After login, set email + apply shortcuts
   ipcMain.on('set-user-email', (event, email) => {
-    const userFile = path.join(userDataPath, `shortcuts_${email}.json`);
+    const userFile = path.join(userDataPath, `japa_shortcuts_${email}.json`);
+    fs.writeFileSync(currentUserFile, JSON.stringify(email));
+
+    let shortcutsToApply = defaultShortcuts;
 
     if (fs.existsSync(userFile)) {
       try {
-        const shortcuts = JSON.parse(fs.readFileSync(userFile));
-        if (isValidShortcutSet(shortcuts)) {
-          registerUserShortcuts(shortcuts);
-        } else {
-          throw new Error('Invalid user shortcut file structure');
+        const userShortcuts = JSON.parse(fs.readFileSync(userFile));
+        if (isValidShortcutSet(userShortcuts)) {
+          shortcutsToApply = userShortcuts;
         }
       } catch (err) {
-        console.warn('Failed to load user shortcut file, using defaults.');
-        registerUserShortcuts({
-          increment: 'F7',
-          decrement: 'F8',
-          reset: 'F9',
-        });
+        console.warn('Error loading user shortcut file. Using defaults.');
       }
-    } else {
-      registerUserShortcuts({
-        increment: 'F7',
-        decrement: 'F8',
-        reset: 'F9',
-      });
     }
+
+    registerUserShortcuts(shortcutsToApply);
+    event.sender.send('shortcuts-registered', shortcutsToApply); // Optional feedback to renderer
   });
 
-  // ✅ Handle shortcut update from UI
+  // Save + apply new shortcuts from frontend
   ipcMain.on('update-shortcuts', (event, { email, shortcuts }) => {
-    const userFile = path.join(userDataPath, `japa_shortcuts_${email}.json`);
-    fs.writeFileSync(userFile, JSON.stringify(shortcuts));
-    registerUserShortcuts(shortcuts);
-  });
+  const userFile = path.join(userDataPath, `japa_shortcuts_${email}.json`);
+  fs.writeFileSync(userFile, JSON.stringify(shortcuts)); // Save shortcuts to file
+  fs.writeFileSync(currentUserFile, JSON.stringify(email)); // Save current user email
+  registerUserShortcuts(shortcuts); // Register the new shortcuts
+  event.sender.send('shortcuts-registered', shortcuts); // Optional feedback to renderer
+});
 
+
+  // Used by renderer to get current user shortcut config
   ipcMain.handle('get-user-shortcuts', (event, email) => {
-    const userFile = path.join(
-      app.getPath('userData'),
-      `japa_shortcuts_${email}.json`
-    );
+    const userFile = path.join(userDataPath, `japa_shortcuts_${email}.json`);
 
-    try {
-      if (fs.existsSync(userFile)) {
-        const raw = fs.readFileSync(userFile, 'utf-8');
-        const data = JSON.parse(raw);
-
-        if (data.increment && data.decrement && data.reset) {
+    if (fs.existsSync(userFile)) {
+      try {
+        const data = JSON.parse(fs.readFileSync(userFile, 'utf-8'));
+        if (isValidShortcutSet(data)) {
           return data;
         }
+      } catch (err) {
+        console.warn('Error parsing user shortcut file.');
       }
-    } catch (err) {
-      console.error('Error reading shortcuts for:', email, err);
     }
 
-    console.warn('Invalid shortcuts file, using defaults.');
-    return {
-      increment: 'F7',
-      decrement: 'F8',
-      reset: 'F9',
-    };
+    return defaultShortcuts;
+  });
+
+  // Optional helper: called after login (can be used from renderer)
+  ipcMain.handle('register-shortcuts-after-login', async (event, email) => {
+    const userFile = path.join(userDataPath, `japa_shortcuts_${email}.json`);
+    let shortcuts = defaultShortcuts;
+
+    if (fs.existsSync(userFile)) {
+      try {
+        const data = JSON.parse(fs.readFileSync(userFile));
+        if (isValidShortcutSet(data)) {
+          shortcuts = data;
+        }
+      } catch {
+        console.warn('Failed to parse shortcut file, using default.');
+      }
+    }
+
+    registerUserShortcuts(shortcuts);
+    return true;
   });
 
   // ✅ Auto-update triggers
@@ -213,23 +355,6 @@ app.whenReady().then(() => {
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
-
-  // drkr nei
-  // Automatically check for updates app ===================================
-  // autoUpdater.on('update-available', () => {
-  //   mainWindow.webContents.send('update-available');
-  // });
-
-  // autoUpdater.on('download-progress', (progress) => {
-  //   mainWindow.webContents.send('download-progress', progress);
-  // });
-
-  // autoUpdater.on('update-downloaded', () => {
-  //   mainWindow.webContents.send('update-downloaded');
-  // });
-
-  // Start checking
-  // autoUpdater.checkForUpdates();
 });
 
 ipcMain.on('force-logout-focus', () => {

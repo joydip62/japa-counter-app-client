@@ -67,15 +67,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.removeAllListeners('reset');
   },
 
+  getUserShortcuts: (email) => ipcRenderer.invoke('get-user-shortcuts', email),
+
   // 🌐 Generic invoke handler (e.g., get-user-shortcuts)
   invoke: (channel, data) => ipcRenderer.invoke(channel, data),
-
-  // drkr nei
-  // send: (channel, data) => {
-  //   if (
-  //     ['update-shortcuts', 'set-user-email', 'install-update'].includes(channel)
-  //   ) {
-  //     ipcRenderer.send(channel, data);
-  //   }
-  // },
 });
