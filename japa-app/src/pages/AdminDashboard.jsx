@@ -23,10 +23,10 @@ const AdminDashboard = () => {
     const fetchData = async () => {
       try {
         const [usersRes, roundsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/admin/users', {
+          axios.get('/admin/users', {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get('http://localhost:5000/api/admin/rounds', {
+          axios.get('/admin/rounds', {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
