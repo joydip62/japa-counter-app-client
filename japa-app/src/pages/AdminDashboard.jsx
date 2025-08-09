@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../utils/axios';
 import LogoutButton from '../components/Logout';
 
 const AdminDashboard = () => {
@@ -44,7 +44,7 @@ const AdminDashboard = () => {
   const changeRole = async (id, newRole) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/admin/user/${id}/role`,
+        `/admin/user/${id}/role`,
         { role: newRole },
         { headers: { Authorization: `Bearer ${token}` } }
       );
